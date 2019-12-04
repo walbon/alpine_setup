@@ -1,0 +1,44 @@
+
+ARG RELEASE=alpine:latest
+FROM $RELEASE
+
+RUN apk update
+RUN apk upgrade
+RUN apk add alpine-sdk
+RUN apk add openssh
+
+ARG USER=devel
+RUN adduser -D $USER
+RUN addgroup $USER abuild
+
+RUN echo "Set disable_coredump false" >> /etc/sudo.conf
+RUN echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+ARG USERNAME="None"
+ARG USERMAIL="@"
+RUN sed -e "s;^PACKAGER=\".*\"$;PACKAGER=\"$USERNAME <$USERMAIL>\";g" -i /etc/abuild.conf
+
+RUN su - $USER -c "git config --global user.name \"$USERNAME\""
+RUN su - $USER -c "git config --global user.email \"$USERMAIL\""
+
+RUN mkdir -p /home/$USER/.ssh
+COPY ssh_keys/id_rsa /home/$USER/.ssh/
+COPY ssh_keys/id_rsa.pub /home/$USER/.ssh/
+RUN chown $USER:$USER /home/$USER/.ssh/*
+
+ARG GIT_URL=git://git.alpinelinux.org/aports
+RUN sed -i -- 's/#   StrictHostKeyChecking ask/StrictHostKeyChecking no/g' /etc/ssh/ssh_config
+RUN grep StrictHostKeyChecking /etc/ssh/ssh_config
+RUN su - $USER -c "git clone --depth=1 $GIT_URL"
+
+RUN chmod a+w /var/cache/distfiles
+
+RUN su - $USER -c "abuild-keygen -a -i"
+
+ARG EDGE=edge
+RUN sed -e "s;\(.*\/alpine\/\)[^\/]*\\(\/.*$\);\1$EDGE\2;g" -i /etc/apk/repositories
+
+RUN apk update
+RUN apk upgrade
+
+ENTRYPOINT su - $(ls /home/ | awk '{print $1}')
