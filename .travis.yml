@@ -1,0 +1,9 @@
+language: shell
+os: linux
+arch: ppc64le
+script: |
+        mkdir ssh_keys && \
+        ssh-keygen -t rsa -N "" -f ssh_keys/id_rsa && \
+        docker build  -t alpine:dev -f Dockerfile-AlpineDev .
+notifications:
+          email: false
