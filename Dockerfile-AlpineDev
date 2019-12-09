@@ -41,4 +41,6 @@ RUN sed -e "s;\(.*\/alpine\/\)[^\/]*\\(\/.*$\);\1$EDGE\2;g" -i /etc/apk/reposito
 RUN apk update
 RUN apk upgrade
 
-ENTRYPOINT su - $(ls /home/ | awk '{print $1}')
+#ENTRYPOINT su - $(ls /home/ | awk '{print $1}')
+# You should run the created container using --user=USER instead.
+# That let the cotainer free to execute easly a commmand via run.
