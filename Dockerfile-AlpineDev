@@ -2,6 +2,9 @@
 ARG RELEASE=alpine:latest
 FROM $RELEASE
 
+ARG EDGE=edge
+RUN sed -e "s;\(.*\/alpine\/\)[^\/]*\\(\/.*$\);\1$EDGE\2;g" -i /etc/apk/repositories
+
 RUN apk update
 RUN apk upgrade
 RUN apk add alpine-sdk
@@ -35,12 +38,6 @@ RUN su - $USER -c "git clone --depth=1 $GIT_URL"
 RUN chmod a+w /var/cache/distfiles
 
 RUN su - $USER -c "abuild-keygen -a -i"
-
-ARG EDGE=edge
-RUN sed -e "s;\(.*\/alpine\/\)[^\/]*\\(\/.*$\);\1$EDGE\2;g" -i /etc/apk/repositories
-
-RUN apk update
-RUN apk upgrade
 
 #ENTRYPOINT su - $(ls /home/ | awk '{print $1}')
 # You should run the created container using --user=USER instead.
