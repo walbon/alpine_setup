@@ -6,6 +6,7 @@ RUN apk update
 RUN apk upgrade
 RUN apk add alpine-sdk
 RUN apk add openssh
+RUN apk add vim
 
 ARG USER=devel
 RUN adduser -D $USER
