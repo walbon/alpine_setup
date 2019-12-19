@@ -34,6 +34,7 @@ ARG GIT_URL=git://git.alpinelinux.org/aports
 RUN sed -i -- 's/#   StrictHostKeyChecking ask/StrictHostKeyChecking no/g' /etc/ssh/ssh_config
 RUN grep StrictHostKeyChecking /etc/ssh/ssh_config
 RUN su - $USER -c "git clone --depth=1 $GIT_URL"
+RUN su - $USER -c "git clone --depth=1 git@github.com:walbon/alpine_setup.git"
 
 RUN chmod a+w /var/cache/distfiles
 
