@@ -1,8 +1,10 @@
 #!/bin/sh
 
-BRANCH=testing
-TIMEOUT=${TIMEOUT:-3600}
+BRANCH="${BRANCH:-testing}"
+TIMEOUT="${TIMEOUT:-3600}"
 # You can change the timemout setting the TIMEOUT in the environment
+FOLDER_LOGS="${FOLDER_LOGS:-AlpineLogs_${BRANCH}_$(date +%Y%m%d)}"
+DESTINY="${DESTINY:-gwalbon@pokgsa.ibm.com:~/web/public/}"
 
 show_processing()
 {
@@ -51,29 +53,29 @@ while(true); do
 done
 
 
-: Create build_logs folders empty
-[ -e "~/build_logs/" ] && rm -rf ~/build_logs/
-mkdir -p ~/build_logs/
+: Create ${FOLDER_LOGS} folders empty
+[ -e "~/${FOLDER_LOGS}" ] && rm -rf ~/${FOLDER_LOGS}
+mkdir -p ~/${FOLDER_LOGS}
 
 : Starting
 PROJECTS=$(cat ~/filelist)
 for p in ${PROJECTS}; do
-	echo "Starting at $(date)" > ~/build_logs/build_${p}.log
+	echo "Starting at $(date)" > ~/${FOLDER_LOGS}/build_${p}.log
 	cd ~/aports/${BRANCH}/${p} || continue
 	echo "building $p"
 	abuild undeps
 	abuild clean
-	abuild checksum >> ~/build_logs/build_${p}.log 2>&1
+	abuild checksum >> ~/${FOLDER_LOGS}/build_${p}.log 2>&1
 	SECONDS=0
-	(time abuild -r -K >> ~/build_logs/build_${p}.log 2>&1) &\
+	(time abuild -r -K >> ~/${FOLDER_LOGS}/build_${p}.log 2>&1) &\
 	show_processing "$!"
-	echo "FINISHED in ${SECONDS} seconds" >> ~/build_logs/build_${p}.log
+	echo "FINISHED in ${SECONDS} seconds" >> ~/${FOLDER_LOGS}/build_${p}.log
 	abuild undeps
 	abuild clean
 	echo "sleeping before moving on to next directory"
 	sleep 1
 	rsync -drvhaP --timeout=30 -e "ssh -o StrictHostKeyChecking=no"\
-	      ~/build_logs/ gwalbon@pokgsa.ibm.com:~/web/public/Alpine_builds/
+	      ~/${FOLDER_LOGS} ${DESTINY}/
 done
 
 exit 0
