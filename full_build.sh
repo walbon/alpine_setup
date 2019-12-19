@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BRANCH="${BRANCH:-testing}"
+BRANCH="${BRANCH:-main}"
 TIMEOUT="${TIMEOUT:-3600}"
 # You can change the timemout setting the TIMEOUT in the environment
 FOLDER_LOGS="${FOLDER_LOGS:-AlpineLogs_${BRANCH}_$(date +%Y%m%d)}"
